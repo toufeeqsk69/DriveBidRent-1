@@ -1,6 +1,7 @@
 // controllers/buyer/dashboard.controller.js
 import RentalRequest from '../../models/RentalRequest.js';
 import AuctionRequest from '../../models/AuctionRequest.js';
+import AuctionBid from '../../models/AuctionBid.js';
 
 // Controller for dashboard home with featured listings
 export const getDashboardHome = async (req, res) => {
@@ -20,10 +21,32 @@ export const getDashboardHome = async (req, res) => {
       .populate('sellerId', 'firstName lastName')
       .lean();
 
+    const auctionIds = featuredAuctions.map((auction) => auction._id);
+    let featuredAuctionsWithBids = featuredAuctions;
+
+    if (auctionIds.length) {
+      const currentBids = await AuctionBid.find({
+        auctionId: { $in: auctionIds },
+        isCurrentBid: true
+      })
+        .select('auctionId bidAmount')
+        .lean();
+
+      const currentBidMap = currentBids.reduce((acc, bid) => {
+        acc[bid.auctionId.toString()] = bid.bidAmount;
+        return acc;
+      }, {});
+
+      featuredAuctionsWithBids = featuredAuctions.map((auction) => ({
+        ...auction,
+        currentHighestBid: currentBidMap[auction._id.toString()] ?? auction.startingBid
+      }));
+    }
+
     res.json({
       success: true,
       message: 'Dashboard data fetched successfully',
-      data: { featuredRentals, featuredAuctions, user: req.user }
+      data: { featuredRentals, featuredAuctions: featuredAuctionsWithBids, user: req.user }
     });
 
     // res.render('buyer_dashboard/proj.ejs', {

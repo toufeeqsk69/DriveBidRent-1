@@ -97,6 +97,25 @@ export const getWishlistApi = async (req, res) => {
       started_auction: 'yes'
     }).populate('sellerId', 'firstName lastName').lean();
 
+    const auctionIds = auctionWishlist.map(auction => auction._id);
+    if (auctionIds.length) {
+      const currentBids = await AuctionBid.find({
+        auctionId: { $in: auctionIds },
+        isCurrentBid: true
+      })
+        .select('auctionId bidAmount')
+        .lean();
+
+      const bidMap = currentBids.reduce((acc, bid) => {
+        acc[bid.auctionId.toString()] = bid.bidAmount;
+        return acc;
+      }, {});
+
+      auctionWishlist.forEach(auction => {
+        auction.currentHighestBid = bidMap[auction._id.toString()] ?? auction.startingBid ?? 0;
+      });
+    }
+
     res.json({
       success: true,
       message: 'Wishlist items fetched',

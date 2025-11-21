@@ -16,11 +16,11 @@ export const getAuctions = async (filters = {}) => {
   try {
     // Build query string from filters
     const queryParams = new URLSearchParams();
-    
+
     Object.entries(filters).forEach(([key, value]) => {
       if (value) queryParams.append(key, value);
     });
-    
+
     const response = await axios.get(`/buyer/auctions?${queryParams.toString()}`);
     return response.data.data?.auctions || [];
   } catch (error) {
@@ -33,11 +33,11 @@ export const getRentals = async (filters = {}) => {
   try {
     // Build query string from filters
     const queryParams = new URLSearchParams();
-    
+
     Object.entries(filters).forEach(([key, value]) => {
       if (value) queryParams.append(key, value);
     });
-    
+
     const response = await axios.get(`/buyer/rentals?${queryParams.toString()}`);
     return response.data.data || { rentals: [], uniqueCities: [] };
   } catch (error) {
@@ -117,7 +117,7 @@ export const getPurchases = async () => {
 export const getPurchaseDetails = async (id) => {
   try {
     const response = await axios.get(`/buyer/purchases/${id}`);
-    return response.data.data || null;
+    return response.data.data?.purchase || null;
   } catch (error) {
     console.error('Error fetching purchase details:', error);
     return null;
@@ -165,7 +165,7 @@ export const getWishlist = async () => {
   try {
     const response = await axios.get('/buyer/wishlist');
     console.log('Wishlist API response:', response.data);
-    
+
     // Handle both response formats
     if (response.data.data) {
       // If using getWishlistApi endpoint
@@ -187,7 +187,7 @@ export const getWishlist = async () => {
         };
       }
     }
-    
+
     return { auctions: [], rentals: [] };
   } catch (error) {
     console.error('Error fetching wishlist:', error);
@@ -197,10 +197,10 @@ export const getWishlist = async () => {
 
 export const addToWishlist = async (id, type) => {
   try {
-    const payload = type === 'auction' 
-      ? { auctionId: id, type } 
+    const payload = type === 'auction'
+      ? { auctionId: id, type }
       : { rentalId: id, type };
-    
+
     const response = await axios.post('/buyer/wishlist', payload);
     return response.data;
   } catch (error) {
@@ -211,10 +211,10 @@ export const addToWishlist = async (id, type) => {
 
 export const removeFromWishlist = async (id, type) => {
   try {
-    const payload = type === 'auction' 
-      ? { auctionId: id, type } 
+    const payload = type === 'auction'
+      ? { auctionId: id, type }
       : { rentalId: id, type };
-    
+
     const response = await axios.delete('/buyer/wishlist', { data: payload });
     return response.data;
   } catch (error) {

@@ -19,6 +19,7 @@ export const getPurchase = async (req, res) => {
       if (!seller) return null;
 
       return {
+        _id: rentalRequest._id,
         investor_id: rentalRequest._id,
         vehicleName: rentalRequest.vehicleName,
         vehicleImage: rentalRequest.vehicleImage,
@@ -62,10 +63,10 @@ export const getPurchase = async (req, res) => {
 
 export const getAuctionPurchaseDetails = async (req, res) => {
   try {
-    const purchaseId = req.query.id;
+    const purchaseId = req.params.id || req.query.id;
     const user = req.user;
 
-    if (!mongoose.Types.ObjectId.isValid(purchaseId)) {
+    if (!purchaseId || !mongoose.Types.ObjectId.isValid(purchaseId)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid purchase ID',

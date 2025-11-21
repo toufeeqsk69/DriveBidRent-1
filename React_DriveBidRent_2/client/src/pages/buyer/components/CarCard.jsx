@@ -1,16 +1,21 @@
 // client/src/pages/buyer/components/CarCard.jsx
 import { Link } from "react-router-dom";
 
-export default function CarCard({ item, type, isInWishlist, onToggleWishlist }) {
+export default function CarCard({ item, type, isInWishlist, onToggleWishlist, returnPath }) {
   const isAuction = type === "auction";
 
-  const getDetailsLink = () =>
-    isAuction ? `/buyer/auctions/${item._id}` : `/buyer/rentals/${item._id}`;
-
-  const getActionLink = () =>
-    isAuction ? `/buyer/auctions/${item._id}/bid` : `/buyer/rentals/${item._id}/book`;
+  const detailsLink = isAuction ? `/buyer/auctions/${item._id}` : `/buyer/rentals/${item._id}`;
 
   const getActionText = () => (isAuction ? "Place Bid" : "Rent Now");
+
+  const detailLinkState = !isAuction && returnPath ? { from: returnPath } : undefined;
+  const rentActionState =
+    !isAuction
+      ? {
+        ...(returnPath ? { from: returnPath } : {}),
+        openRentModal: true
+      }
+      : undefined;
 
   return (
     <div className="relative bg-white border border-orange-500 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col h-full">
@@ -29,9 +34,8 @@ export default function CarCard({ item, type, isInWishlist, onToggleWishlist }) 
       {/* Wishlist Heart */}
       <button
         onClick={onToggleWishlist}
-        className={`absolute top-4 right-4 text-3xl z-10 transition-all ${
-          isInWishlist ? "text-orange-500 drop-shadow-lg" : "text-gray-300 hover:text-gray-500"
-        }`}
+        className={`absolute top-4 right-4 text-3xl z-10 transition-all ${isInWishlist ? "text-orange-500 drop-shadow-lg" : "text-gray-300 hover:text-gray-500"
+          }`}
         aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
       >
         {isInWishlist ? "♥" : "♡"}
@@ -97,14 +101,16 @@ export default function CarCard({ item, type, isInWishlist, onToggleWishlist }) 
         {/* Action Buttons */}
         <div className="mt-6 flex gap-4">
           <Link
-            to={getDetailsLink()}
+            to={detailsLink}
+            state={detailLinkState}
             className="flex-1 bg-gray-700 text-white text-center py-3 rounded-lg font-medium hover:bg-gray-800 transition"
           >
             View Details
           </Link>
           {!isAuction && (
             <Link
-              to={getActionLink()}
+              to={detailsLink}
+              state={rentActionState}
               className="flex-1 bg-orange-500 text-white text-center py-3 rounded-lg font-medium hover:bg-orange-600 transition"
             >
               {getActionText()}

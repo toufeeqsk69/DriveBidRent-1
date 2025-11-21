@@ -103,9 +103,8 @@ export default function PurchasesList() {
                 className="relative bg-white border border-orange-500 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col"
               >
                 {/* Status Tag */}
-                <span className={`absolute top-6 left-6 z-10 px-6 py-2 rounded-full text-white font-bold text-sm shadow-md ${
-                  purchase.paymentStatus === 'pending' ? 'bg-blue-600' : 'bg-green-600'
-                }`}>
+                <span className={`absolute top-6 left-6 z-10 px-6 py-2 rounded-full text-white font-bold text-sm shadow-md ${purchase.paymentStatus === 'pending' ? 'bg-blue-600' : 'bg-green-600'
+                  }`}>
                   {purchase.paymentStatus === 'pending' ? 'Pending Payment' : 'Payment Done'}
                 </span>
 
@@ -173,52 +172,56 @@ export default function PurchasesList() {
             </p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-              {rentals.map((rental) => (
-                <div
-                  key={rental._id}
-                  className="bg-white border border-orange-500 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col"
-                >
-                  <div className="relative">
-                    <span className="absolute top-6 left-6 z-10 bg-orange-500 text-white px-6 py-2 rounded-full font-bold text-sm shadow-md">
-                      Active
-                    </span>
-                    <img
-                      src={rental.vehicleImage}
-                      alt={rental.vehicleName}
-                      className="w-full h-56 object-contain bg-gray-100"
-                    />
-                  </div>
-
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-2xl font-bold text-orange-500 mb-3">
-                      {rental.vehicleName}
-                    </h3>
-
-                    <p className="text-gray-600 text-sm mb-4">
-                      Period: <strong>
-                        {new Date(rental.pickupDate).toLocaleDateString()} - {new Date(rental.dropDate).toLocaleDateString()}
-                      </strong>
-                    </p>
-
-                    <div className="bg-gray-50 p-5 rounded-lg space-y-3 text-sm flex-grow">
-                      <p><strong>Daily Rate:</strong> ₹{rental.costPerDay}</p>
-                      <p><strong>Total Cost:</strong> ₹{rental.totalCost}</p>
-                      <p><strong>Seller:</strong> {rental.sellerName}</p>
-                      <p><strong>Contact:</strong> {rental.sellerPhone}</p>
+              {rentals.map((rental) => {
+                const rentalId = rental._id || rental.investor_id;
+                return (
+                  <div
+                    key={rentalId || rental.vehicleName}
+                    className="bg-white border border-orange-500 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col"
+                  >
+                    <div className="relative">
+                      <span className="absolute top-6 left-6 z-10 bg-orange-500 text-white px-6 py-2 rounded-full font-bold text-sm shadow-md">
+                        Active
+                      </span>
+                      <img
+                        src={rental.vehicleImage}
+                        alt={rental.vehicleName}
+                        className="w-full h-56 object-contain bg-gray-100"
+                      />
                     </div>
 
-                    {/* More Details Button - Always Visible */}
-                    <div className="mt-6">
-                      <Link
-                        to={`/buyer/rental-details/${rental._id}`}
-                        className="block w-full bg-orange-500 text-white text-center py-3 rounded-lg font-medium hover:bg-orange-600 transition shadow-md"
-                      >
-                        More Details
-                      </Link>
+                    <div className="p-6 flex flex-col flex-grow">
+                      <h3 className="text-2xl font-bold text-orange-500 mb-3">
+                        {rental.vehicleName}
+                      </h3>
+
+                      <p className="text-gray-600 text-sm mb-4">
+                        Period: <strong>
+                          {new Date(rental.pickupDate).toLocaleDateString()} - {new Date(rental.dropDate).toLocaleDateString()}
+                        </strong>
+                      </p>
+
+                      <div className="bg-gray-50 p-5 rounded-lg space-y-3 text-sm flex-grow">
+                        <p><strong>Daily Rate:</strong> ₹{rental.costPerDay}</p>
+                        <p><strong>Total Cost:</strong> ₹{rental.totalCost}</p>
+                        <p><strong>Seller:</strong> {rental.sellerName}</p>
+                        <p><strong>Contact:</strong> {rental.sellerPhone}</p>
+                      </div>
+
+                      {/* More Details Button - Always Visible */}
+                      <div className="mt-6">
+                        <Link
+                          to={`/buyer/rentals/${rentalId}`}
+                          state={{ from: '/buyer/purchases' }}
+                          className="block w-full bg-orange-500 text-white text-center py-3 rounded-lg font-medium hover:bg-orange-600 transition shadow-md"
+                        >
+                          More Details
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

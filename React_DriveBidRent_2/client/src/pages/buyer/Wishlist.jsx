@@ -148,8 +148,20 @@ export default function Wishlist() {
                       </div>
 
                       <div className="mt-6 space-y-3">
-                        <Link to={`/buyer/rentals/${id}`} className="block w-full bg-orange-500 text-white text-center py-3 rounded-lg font-medium hover:bg-orange-600 transition shadow-md">More Details</Link>
-                        <Link to={`/buyer/rentals/${id}/book`} className="block w-full bg-green-600 text-white text-center py-3 rounded-lg font-medium hover:bg-green-700 transition shadow-md">Rent It</Link>
+                        <Link
+                          to={`/buyer/rentals/${id}`}
+                          state={{ from: '/buyer/wishlist' }}
+                          className="block w-full bg-orange-500 text-white text-center py-3 rounded-lg font-medium hover:bg-orange-600 transition shadow-md"
+                        >
+                          More Details
+                        </Link>
+                        <Link
+                          to={`/buyer/rentals/${id}`}
+                          state={{ from: '/buyer/wishlist', openRentModal: true }}
+                          className="block w-full bg-green-600 text-white text-center py-3 rounded-lg font-medium hover:bg-green-700 transition shadow-md"
+                        >
+                          Rent It
+                        </Link>
                       </div>
                     </div>
                   </div>

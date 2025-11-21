@@ -1,6 +1,6 @@
 // client/src/pages/buyer/RentalDetails.jsx
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getRentalById, bookRental } from '../../services/buyer.services';
 import DatePickerModal from './components/modals/DatePickerModal';
 import PaymentModal from './components/modals/PaymentModal';
@@ -10,6 +10,7 @@ import SuccessModal from './components/modals/SuccessModal';
 export default function RentalDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [rental, setRental] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -27,6 +28,12 @@ export default function RentalDetails() {
   useEffect(() => {
     fetchRentalDetails();
   }, [id]);
+
+  useEffect(() => {
+    if (location.state?.openRentModal && rental?.status === "available") {
+      setShowDateModal(true);
+    }
+  }, [location.state, rental]);
 
   const fetchRentalDetails = async () => {
     try {
@@ -55,6 +62,7 @@ export default function RentalDetails() {
   };
 
   const handleRentNow = () => {
+    if (rental?.status !== "available") return;
     if (!pickupDate || !dropDate) return alert("Please select both pickup and drop dates.");
     if (totalCost <= 0) return alert("Invalid rental period.");
 
@@ -97,8 +105,21 @@ export default function RentalDetails() {
     }
   };
 
+  const originPath = location.state?.from || "/buyer/rentals";
+  const originLabel = useMemo(() => {
+    const labels = {
+      "/buyer": "← Back to Dashboard",
+      "/buyer/rentals": "← Back to Rentals",
+      "/buyer/purchases": "← Back to Purchases",
+      "/buyer/wishlist": "← Back to Wishlist"
+    };
+    return labels[originPath] || "← Back";
+  }, [originPath]);
+
+  const isAvailable = rental?.status === "available";
+
   const redirectToDashboard = () => navigate("/buyer");
-  const redirectToRentals = () => navigate("/buyer/rentals");
+  const redirectBack = () => navigate(originPath);
 
   if (loading) {
     return (
@@ -119,10 +140,10 @@ export default function RentalDetails() {
           <h2 className="text-3xl font-bold text-red-600 mb-4">{error || "Rental Not Found"}</h2>
           <p className="text-gray-600 mb-8">The rental you're looking for doesn't exist or has been removed.</p>
           <button
-            onClick={redirectToRentals}
+            onClick={redirectBack}
             className="bg-orange-500 text-white px-8 py-4 rounded-xl font-bold hover:bg-orange-600 transition shadow-lg mt-6"
           >
-            Back to Rentals
+            {originLabel}
           </button>
         </div>
       </div>
@@ -224,10 +245,14 @@ export default function RentalDetails() {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 mt-12">
               <button
-                onClick={() => setShowDateModal(true)}
-                className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-2xl font-bold py-6 rounded-2xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-xl"
+                onClick={() => isAvailable && setShowDateModal(true)}
+                disabled={!isAvailable}
+                className={`flex-1 text-white text-2xl font-bold py-6 rounded-2xl transition-all shadow-xl ${isAvailable
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+                  : "bg-gray-400 cursor-not-allowed"
+                  }`}
               >
-                Rent This Car
+                {isAvailable ? "Rent This Car" : "Already Rented"}
               </button>
               <a
                 href={`mailto:${rental.seller.email}?subject=Inquiry about ${rental.vehicleName}`}
@@ -239,10 +264,10 @@ export default function RentalDetails() {
 
             <div className="text-center mt-8">
               <button
-                onClick={redirectToRentals}
+                onClick={redirectBack}
                 className="text-orange-600 font-bold hover:text-orange-700 transition"
               >
-                ← Back to Rentals
+                {originLabel}
               </button>
             </div>
           </div>

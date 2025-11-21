@@ -137,6 +137,7 @@ const Dashboard = () => {
                   key={rental._id}
                   item={rental}
                   type="rental"
+                  returnPath="/buyer"
                   isInWishlist={wishlist.rentals.includes(rental._id)}
                   onToggleWishlist={() => handleWishlistToggle(rental._id, "rental")}
                 />

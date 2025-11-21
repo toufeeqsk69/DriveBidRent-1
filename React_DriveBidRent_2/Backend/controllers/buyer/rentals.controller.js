@@ -88,6 +88,7 @@ export const getSingleRental = async (req, res) => {
         costPerDay: rental.costPerDay,
         driverAvailable: rental.driverAvailable,
         driverRate: rental.driverRate,
+        status: rental.status,
         seller: rental.sellerId,
         user: req.user
       }

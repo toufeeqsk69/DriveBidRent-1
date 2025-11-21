@@ -30,11 +30,33 @@ export const getAuctions = async (req, res) => {
       .populate('sellerId', 'firstName lastName email phone city state')
       .lean();
 
+    const auctionIds = auctions.map((auction) => auction._id);
+    let auctionsWithBids = auctions;
+
+    if (auctionIds.length) {
+      const currentBids = await AuctionBid.find({
+        auctionId: { $in: auctionIds },
+        isCurrentBid: true
+      })
+        .select('auctionId bidAmount')
+        .lean();
+
+      const currentBidMap = currentBids.reduce((acc, bid) => {
+        acc[bid.auctionId.toString()] = bid.bidAmount;
+        return acc;
+      }, {});
+
+      auctionsWithBids = auctions.map((auction) => ({
+        ...auction,
+        currentHighestBid: currentBidMap[auction._id.toString()] ?? auction.startingBid
+      }));
+    }
+
     res.json({
       success: true,
       message: 'Auctions fetched successfully',
       data: {
-        auctions,
+        auctions: auctionsWithBids,
         filters: { search, condition, fuelType, transmission, minPrice, maxPrice }
       }
     });
@@ -53,7 +75,7 @@ export const getSingleAuction = async (req, res) => {
   try {
     // FIX: Get ID from URL params instead of query params
     const auctionId = req.params.id;
-    
+
     if (!auctionId) {
       return res.status(400).json({
         success: false,
@@ -86,13 +108,13 @@ export const getSingleAuction = async (req, res) => {
     res.json({
       success: true,
       message: 'Auction details fetched',
-      data: { 
-        auction, 
+      data: {
+        auction,
         seller: auction.sellerId,
-        currentBid, 
-        isCurrentBidder, 
-        isLoggedIn: true, 
-        user: req.user 
+        currentBid,
+        isCurrentBidder,
+        isLoggedIn: true,
+        user: req.user
       }
     });
   } catch (error) {

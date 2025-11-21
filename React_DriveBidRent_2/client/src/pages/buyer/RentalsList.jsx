@@ -239,6 +239,7 @@ export default function RentalsList() {
                     key={rental._id}
                     item={rental}
                     type="rental"
+                    returnPath="/buyer/rentals"
                     isInWishlist={wishlist.rentals?.some(item => item._id === rental._id)}
                     onToggleWishlist={() => toggleWishlist(rental._id, 'rental')}
                   />
